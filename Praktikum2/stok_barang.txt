@@ -1,7 +1,0 @@
-BRG001, Roti, 20
-BRG002, AirMineral, 15
-BRG003, TehBotol, 11
-BRG004, RotiManis, 12
-BRG005, Soda, 5
-BRG006, Gas, 7
-BRG007, CikiCiki, 16
