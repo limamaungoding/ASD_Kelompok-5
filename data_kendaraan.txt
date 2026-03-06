@@ -1,1 +1,4 @@
-ini data kendaraan
+F 1724 EG,Mobil,Nissan Skyline GT-R R34,Putih,350000
+D 5634 AD,Mobil,Mazda MX-5 Miata,Merah,255000
+AB 7896 R,Mobil,Mazda RX-7,Putih,255000
+H 6557 F,Motor,Nmax,Hitam,60000
