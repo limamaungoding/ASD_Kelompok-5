@@ -10,7 +10,7 @@ def baca_data(nama_file):
                 if not baris: continue
                 parts = baris.split(",")
                 plat, jenis, nama, warna, harga = parts[0], parts[1], parts[2], parts[3], parts[4]
-                status = parts[5] if len(parts) > 5 else "Tersedia" #jika ada status, gunakan, jika tidak, default "Tersedia"
+                status = parts[5] if len(parts) > 5 else "Tersedia" #jika ada status, gunakan, if not, default "Tersedia"
 
                 data_dict[plat]= {
                     "jenis": jenis, 
@@ -61,7 +61,6 @@ def sewa_kendaraan(data):
             # Update Status & Simpan Transaksi (Simulasi)
             data[plat_input]['status'] = "Disewa"
             print(f"Transaksi Berhasil! {data[plat_input]['nama']} sekarang berstatus DISEWA.")
-            # Di sini kamu bisa menambahkan fungsi simpan ke file jika diperlukan
         else:
             # Jalur "Tidak" pada flowchart
             print("Tidak Bisa Disewa (Kendaraan sedang dipakai).")
