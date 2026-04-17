@@ -1,4 +1,4 @@
-nama_file ="data_kendaraan.txt"
+DATA_FILE = "data_kendaraan.txt"
 
 # Baca file bagian Lima
 def baca_data(nama_file):
@@ -10,7 +10,7 @@ def baca_data(nama_file):
                 if not baris: continue
                 parts = baris.split(",")
                 plat, jenis, nama, warna, harga = parts[0], parts[1], parts[2], parts[3], parts[4]
-                status = parts[5] if len(parts) > 5 else "Tersedia" #jika ada status, gunakan, if not, default "Tersedia"
+                status = parts[5].strip().lower() if len(parts) > 5 else "tersedia"
 
                 data_dict[plat]= {
                     "jenis": jenis, 
@@ -33,7 +33,7 @@ def cek_ketersediaan(data):
         if search == plat.lower() or search in info['nama'].lower():
             found = True
             # YES OR NAUUU
-            if info['status'] == "Tersedia":
+            if info['status'].lower() == "tersedia":
                 print(f"[YA] {info['nama']} ({plat}) berstatus TERSEDIA.")
             else:
                 print(f"[TIDAK] {info['nama']} ({plat}) sedang DISEWA.")
@@ -48,10 +48,9 @@ def sewa_kendaraan(data):
     
     if plat_input in data:
         # Logika Flowchart: Status Tersedia?
-        if data[plat_input]['status'] == "Tersedia":
+        if data[plat_input]['status'].lower() == "tersedia":
             print("Status: Tersedia. Silahkan lanjut isi data.")
-            # Input Data Penyewa
-            nama_penyewa = input("Nama Penyewa: ")
+            input("Nama Penyewa: ")
             hari = int(input("Lama Sewa (hari): "))
             
             # Hitung Total Biaya
@@ -59,7 +58,7 @@ def sewa_kendaraan(data):
             print(f"Total Biaya: Rp{total_biaya}")
             
             # Update Status & Simpan Transaksi (Simulasi)
-            data[plat_input]['status'] = "Disewa"
+            data[plat_input]['status'] = "disewa"
             print(f"Transaksi Berhasil! {data[plat_input]['nama']} sekarang berstatus DISEWA.")
         else:
             # Jalur "Tidak" pada flowchart
@@ -68,11 +67,83 @@ def sewa_kendaraan(data):
         print("ID Kendaraan tidak ditemukan.")
 
 # ================== KEMBALIKAN (Nazla)==================
+def tambah_kendaraan(data_dict, nama_file):
+    print("\n=== Tambah Kendaraan ===")
+    plat = input("Plat Kendaraan: ")
+    if plat in data_dict:
+        print(f"Plat {plat} sudah terdaftar.")
+        return
+
+    jenis = input("Jenis Kendaraan: ")
+    nama = input("Nama Kendaraan: ")
+    warna = input("Warna Kendaraan: ")
+    harga_input = input("Harga Sewa per hari: ")
+
+    try:
+        harga = int(harga_input)
+    except ValueError:
+        print("Harga harus berupa angka.")
+        return
+
+    with open(nama_file, 'a', encoding="utf-8") as file:
+        file.write(f"{plat},{jenis},{nama},{warna},{harga},tersedia\n")
+
+    data_dict[plat] = {
+        "jenis": jenis,
+        "nama": nama,
+        "warna": warna,
+        "harga": harga,
+        "status": "tersedia"
+    }
+
+    print(f"Kendaraan {nama} ({plat}) berhasil ditambahkan.")
+
+
+def simpan_data(data_dict, nama_file):
+    with open(nama_file, 'w', encoding="utf-8") as file:
+        for plat, info in data_dict.items():
+            file.write(f"{plat},{info['jenis']},{info['nama']},{info['warna']},{info['harga']},{info['status']}\n")
+
+
+def edit_kendaraan(data_dict, nama_file):
+    print("\n=== Ubah Data Kendaraan ===")
+    plat = input("Plat Kendaraan yang akan diubah: ")
+    if plat not in data_dict:
+        print("Plat tidak ditemukan.")
+        return
+
+    info = data_dict[plat]
+    print(f"Data saat ini: Jenis={info['jenis']}, Nama={info['nama']}, Warna={info['warna']}, Harga={info['harga']}, Status={info['status']}")
+    jenis = input(f"Jenis baru [{info['jenis']}]: ") or info['jenis']
+    nama = input(f"Nama baru [{info['nama']}]: ") or info['nama']
+    warna = input(f"Warna baru [{info['warna']}]: ") or info['warna']
+    harga_input = input(f"Harga baru [{info['harga']}]: ")
+
+    if harga_input.strip():
+        try:
+            harga = int(harga_input)
+        except ValueError:
+            print("Harga harus berupa angka.")
+            return
+    else:
+        harga = info['harga']
+
+    data_dict[plat].update({
+        "jenis": jenis,
+        "nama": nama,
+        "warna": warna,
+        "harga": harga
+    })
+
+    simpan_data(data_dict, nama_file)
+    print(f"Data kendaraan {plat} berhasil diperbarui.")
+
+
 def kembalikan_kendaraan(data_dict):
     plat = input("Masukkan plat kendaraan: ")
 
     if plat in data_dict:
-        if data_dict[plat]["status"] == "disewa":
+        if data_dict[plat]["status"].lower() == "disewa":
             data_dict[plat]["status"] = "tersedia"
             print("Kendaraan berhasil dikembalikan!")
         else:
@@ -108,16 +179,22 @@ def laporan_keuangan(data_dict):
 
 
 # --- MENU SEMENTARAAAA ---
-data_kendaraan = baca_data(nama_file)
+data_kendaraan = baca_data(DATA_FILE)
 
 while True:
     print("\nMenu Utama:")
+    print("1. Tambah Kendaraan")
+    print("2. Ubah Data Kendaraan")
     print("3. Cek Ketersediaan")
     print("4. Sewa Kendaraan")
     print("0. Keluar")
     pilihan = input("Pilih Menu: ")
 
-    if pilihan == "3":
+    if pilihan == "1":
+        tambah_kendaraan(data_kendaraan, DATA_FILE)
+    elif pilihan == "2":
+        edit_kendaraan(data_kendaraan, DATA_FILE)
+    elif pilihan == "3":
         cek_ketersediaan(data_kendaraan)
     elif pilihan == "4":
         sewa_kendaraan(data_kendaraan)
