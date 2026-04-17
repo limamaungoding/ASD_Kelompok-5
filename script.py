@@ -104,7 +104,7 @@ def simpan_data(data_dict, nama_file):
         for plat, info in data_dict.items():
             file.write(f"{plat},{info['jenis']},{info['nama']},{info['warna']},{info['harga']},{info['status']}\n")
 
-
+#BAGIAN YUMIKO
 def edit_kendaraan(data_dict, nama_file):
     print("\n=== Ubah Data Kendaraan ===")
     plat = input("Plat Kendaraan yang akan diubah: ")
@@ -114,26 +114,40 @@ def edit_kendaraan(data_dict, nama_file):
 
     info = data_dict[plat]
     print(f"Data saat ini: Jenis={info['jenis']}, Nama={info['nama']}, Warna={info['warna']}, Harga={info['harga']}, Status={info['status']}")
-    jenis = input(f"Jenis baru [{info['jenis']}]: ") or info['jenis']
-    nama = input(f"Nama baru [{info['nama']}]: ") or info['nama']
-    warna = input(f"Warna baru [{info['warna']}]: ") or info['warna']
-    harga_input = input(f"Harga baru [{info['harga']}]: ")
+    print("Pilih bagian yang ingin diubah:")
+    print("1. Jenis")
+    print("2. Nama")
+    print("3. Warna")
+    print("4. Harga")
+    print("0. Batal")
+    pilihan = input("Pilihan: ")
 
-    if harga_input.strip():
-        try:
-            harga = int(harga_input)
-        except ValueError:
-            print("Harga harus berupa angka.")
-            return
+    if pilihan == "1":
+        baru = input(f"Jenis baru [{info['jenis']}]: ") or info['jenis']
+        data_dict[plat]['jenis'] = baru
+    elif pilihan == "2":
+        baru = input(f"Nama baru [{info['nama']}]: ") or info['nama']
+        data_dict[plat]['nama'] = baru
+    elif pilihan == "3":
+        baru = input(f"Warna baru [{info['warna']}]: ") or info['warna']
+        data_dict[plat]['warna'] = baru
+    elif pilihan == "4":
+        harga_input = input(f"Harga baru [{info['harga']}]: ")
+        if harga_input.strip():
+            try:
+                harga = int(harga_input)
+            except ValueError:
+                print("Harga harus berupa angka.")
+                return
+        else:
+            harga = info['harga']
+        data_dict[plat]['harga'] = harga
+    elif pilihan == "0":
+        print("Edit dibatalkan.")
+        return
     else:
-        harga = info['harga']
-
-    data_dict[plat].update({
-        "jenis": jenis,
-        "nama": nama,
-        "warna": warna,
-        "harga": harga
-    })
+        print("Pilihan tidak valid.")
+        return
 
     simpan_data(data_dict, nama_file)
     print(f"Data kendaraan {plat} berhasil diperbarui.")
