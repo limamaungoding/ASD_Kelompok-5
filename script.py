@@ -23,7 +23,7 @@ def baca_data(nama_file):
         print("File tidak ditemukan!")
     return data_dict
 
-# --- FITUR 3: CEK KETERSEDIAAN (PART LIMAAA)---
+# --- CEK KETERSEDIAAN (PART LIMAAA)---
 def cek_ketersediaan(data):
     print("\n=== Cek Ketersediaan ===")
     search = input("Input ID (Plat) atau Nama Kendaraan: ").lower()
@@ -41,7 +41,7 @@ def cek_ketersediaan(data):
     if not found:
         print("Data kendaraan tidak ditemukan.")
 
-# --- FITUR 4: SEWA KENDARAAN (PART LIMAAA)---
+# --- SEWA KENDARAAN (PART LIMAAA)---
 def sewa_kendaraan(data):
     print("\n=== Sewa Kendaraan ===")
     plat_input = input("Input ID Kendaraan (Plat): ")
@@ -67,6 +67,46 @@ def sewa_kendaraan(data):
     else:
         print("ID Kendaraan tidak ditemukan.")
 
+# ================== KEMBALIKAN (Nazla)==================
+def kembalikan_kendaraan(data_dict):
+    plat = input("Masukkan plat kendaraan: ")
+
+    if plat in data_dict:
+        if data_dict[plat]["status"] == "disewa":
+            data_dict[plat]["status"] = "tersedia"
+            print("Kendaraan berhasil dikembalikan!")
+        else:
+            print("Kendaraan tidak sedang disewa.")
+    else:
+        print("Plat tidak ditemukan.")
+
+
+# LAPORAN (NAZLA)
+
+def laporan_tersedia(data_dict):
+    print("\n=== Kendaraan Tersedia ===")
+    for plat, k in data_dict.items():
+        if k["status"] == "tersedia":
+            print(plat, "-", k["nama"])
+
+
+def laporan_disewa(data_dict):
+    print("\n=== Kendaraan Disewa ===")
+    for plat, k in data_dict.items():
+        if k["status"] == "disewa":
+            print(plat, "-", k["nama"])
+
+
+def laporan_keuangan(data_dict):
+    total = 0
+    for k in data_dict.values():
+        if k["status"] == "disewa":
+            total += k["harga"]
+
+    print("\n=== Laporan Keuangan ===")
+    print("Total Pendapatan: Rp", total)
+
+
 # --- MENU SEMENTARAAAA ---
 data_kendaraan = baca_data(nama_file)
 
@@ -85,36 +125,39 @@ while True:
         break
     else:
         print("Pilihan tidak valid.")
-# tambah kendaraan ##Bagian yumiko
-def tambah_kendaraan(nama_file, plat, jenis, nama, warna, harga):
-    """
-    Menambahkan kendaraan baru ke file.
-    """
-    try:
-        data_dict = baca_data(nama_file) #untuk pengecekan duplikat
-    except FileNotFoundError:
-        data_dict = {}
+        
 
-    if plat in data_dict:  #cek plat sudah ada atau belum
-        print(f"Gagal: Plat {plat} sudah terdaftar.")
-        return data_dict
-    with open(nama_file, 'a', encoding="utf-8") as file:
-        file.write(f"{plat},{jenis},{nama},{warna},{int(harga)}\n")
 
-    data_dict[plat] = {"jenis": jenis, "nama": nama, "warna": warna, "harga": int(harga)}
+# # tambah kendaraan ##Bagian yumiko
+# def tambah_kendaraan(nama_file, plat, jenis, nama, warna, harga):
+#     """
+#     Menambahkan kendaraan baru ke file.
+#     """
+#     try:
+#         data_dict = baca_data(nama_file) #untuk pengecekan duplikat
+#     except FileNotFoundError:
+#         data_dict = {}
+
+#     if plat in data_dict:  #cek plat sudah ada atau belum
+#         print(f"Gagal: Plat {plat} sudah terdaftar.")
+#         return data_dict
+#     with open(nama_file, 'a', encoding="utf-8") as file:
+#         file.write(f"{plat},{jenis},{nama},{warna},{int(harga)}\n")
+
+#     data_dict[plat] = {"jenis": jenis, "nama": nama, "warna": warna, "harga": int(harga)}
     
-    print(f"Berhasil menambahkan kendaraan: {plat}")
-    return data_dict
+#     print(f"Berhasil menambahkan kendaraan: {plat}")
+#     return data_dict
 
-if __name__ == "__main__":
-    try:
-        buka_data = baca_data(nama_file)
-        print("Jumlah data awal terbaca:", len(buka_data))
-    except FileNotFoundError:
-        print("File belum ada, akan dibuat saat penambahan data.")
-        buka_data = {}
+# if __name__ == "__main__":
+#     try:
+#         buka_data = baca_data(nama_file)
+#         print("Jumlah data awal terbaca:", len(buka_data))
+#     except FileNotFoundError:
+#         print("File belum ada, akan dibuat saat penambahan data.")
+#         buka_data = {}
 
-    print("Jumlah data terbaca:", len(buka_data))
+#     print("Jumlah data terbaca:", len(buka_data))
 
-    buka_data = tambah_kendaraan(nama_file, "B1234XYZ", "Mobil", "Avanza", "Hitam", 300000)
-    print("Jumlah data sekarang:", len(buka_data))
+#     buka_data = tambah_kendaraan(nama_file, "B1234XYZ", "Mobil", "Avanza", "Hitam", 300000)
+#     print("Jumlah data sekarang:", len(buka_data))
