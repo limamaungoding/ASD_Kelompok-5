@@ -1,3 +1,42 @@
+nama_file =  "data_kendaraan.txt"
+# Baca file bagian Lima
+def baca_data(nama_file):
+    data_dict = {}
+    try:
+        with open(nama_file, 'r', encoding="utf-8") as file:
+            for baris in file : 
+                baris = baris.strip() #mengambil data perbaris
+                if not baris: continue
+                parts = baris.split(",")
+                plat, jenis, nama, warna, harga = parts[0], parts[1], parts[2], parts[3], parts[4]
+                status = parts[5] if len(parts) > 5 else "Tersedia" #jika ada status, gunakan, if not, default "Tersedia"
+
+                data_dict[plat]= {
+                    "jenis": jenis, 
+                    "nama": nama, 
+                    "warna": warna, 
+                    "harga": int(harga),
+                    "status": status
+                    } 
+    except FileNotFoundError:
+        print("File tidak ditemukan!")
+    return data_dict
+
+# ================== KEMBALIKAN ==================
+def kembalikan_kendaraan(data_dict):
+    plat = input("Masukkan plat kendaraan: ")
+
+    if plat in data_dict:
+        if data_dict[plat]["status"] == "disewa":
+            data_dict[plat]["status"] = "tersedia"
+            print("Kendaraan berhasil dikembalikan!")
+        else:
+            print("Kendaraan tidak sedang disewa.")
+    else:
+        print("Plat tidak ditemukan.")
+
+
+
 # LAPORAN 
 
 def laporan_tersedia(data_dict):

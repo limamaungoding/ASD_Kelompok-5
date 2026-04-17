@@ -1,6 +1,6 @@
 nama_file ="data_kendaraan.txt"
 
-# Baca file ##Bagian Lima
+# Baca file bagian Lima
 def baca_data(nama_file):
     data_dict = {}
     try:
