@@ -5,3 +5,4 @@ H 6557 F,Motor,Nmax,Hitam,60000,tersedia
 B1234CD,Mobil,Avanza,Hitam,500000,tersedia
 H 1778 G,Mobil,Pajero ,Putih,2000000,tersedia
 J 1235 FG,Mobil,Avanza,Hitam,70000,tersedia
+F 1678 GF,Motor,Mio,Hitam,15000,tersedia

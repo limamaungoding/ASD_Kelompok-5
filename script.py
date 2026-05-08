@@ -1,4 +1,9 @@
-DATA_FILE = "data_kendaraan.txt"
+from datetime import datetime
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_FILE = BASE_DIR / "data_kendaraan.txt"
+TRANSAKSI_FILE = BASE_DIR / "data_transaksi.txt"
 
 # Baca file bagian Lima
 def baca_data(nama_file):
@@ -42,7 +47,59 @@ def cek_ketersediaan(data):
         print("Data kendaraan tidak ditemukan.")
 
 # --- SEWA KENDARAAN (PART LIMAAA)---
-def sewa_kendaraan(data):
+def baca_transaksi(nama_file):
+    transaksi = []
+    try:
+        with open(nama_file, 'r', encoding="utf-8") as file:
+            for baris in file:
+                baris = baris.strip()
+                if not baris:
+                    continue
+
+                parts = baris.split("|")
+                if len(parts) < 8:
+                    continue
+
+                transaksi.append({
+                    "tanggal": parts[0],
+                    "plat": parts[1],
+                    "kendaraan": parts[2],
+                    "penyewa": parts[3],
+                    "hari": int(parts[4]),
+                    "harga": int(parts[5]),
+                    "total": int(parts[6]),
+                    "status": parts[7]
+                })
+    except FileNotFoundError:
+        pass
+    return transaksi
+
+
+def simpan_transaksi(transaksi, nama_file):
+    with open(nama_file, 'w', encoding="utf-8") as file:
+        for t in transaksi:
+            file.write(f"{t['tanggal']}|{t['plat']}|{t['kendaraan']}|{t['penyewa']}|{t['hari']}|{t['harga']}|{t['total']}|{t['status']}\n")
+
+
+def tambah_transaksi(nama_file, plat, info, penyewa, hari, total_biaya):
+    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(nama_file, 'a', encoding="utf-8") as file:
+        file.write(f"{tanggal}|{plat}|{info['nama']}|{penyewa}|{hari}|{info['harga']}|{total_biaya}|disewa\n")
+
+
+def update_transaksi_dikembalikan(nama_file, plat):
+    transaksi = baca_transaksi(nama_file)
+
+    for t in reversed(transaksi):
+        if t["plat"] == plat and t["status"].lower() == "disewa":
+            t["status"] = "dikembalikan"
+            simpan_transaksi(transaksi, nama_file)
+            return True
+
+    return False
+
+
+def sewa_kendaraan(data, nama_file, transaksi_file):
     print("\n=== Sewa Kendaraan ===")
     plat_input = input("Input ID Kendaraan (Plat): ")
     
@@ -50,15 +107,21 @@ def sewa_kendaraan(data):
         # Logika Flowchart: Status Tersedia?
         if data[plat_input]['status'].lower() == "tersedia":
             print("Status: Tersedia. Silahkan lanjut isi data.")
-            input("Nama Penyewa: ")
-            hari = int(input("Lama Sewa (hari): "))
+            penyewa = input("Nama Penyewa: ")
+            try:
+                hari = int(input("Lama Sewa (hari): "))
+            except ValueError:
+                print("Lama sewa harus berupa angka.")
+                return
             
             # Hitung Total Biaya
             total_biaya = data[plat_input]['harga'] * hari
             print(f"Total Biaya: Rp{total_biaya}")
             
-            # Update Status & Simpan Transaksi (Simulasi)
+            # Update Status & Simpan Transaksi
             data[plat_input]['status'] = "disewa"
+            simpan_data(data, nama_file)
+            tambah_transaksi(transaksi_file, plat_input, data[plat_input], penyewa, hari, total_biaya)
             print(f"Transaksi Berhasil! {data[plat_input]['nama']} sekarang berstatus DISEWA.")
         else:
             # Jalur "Tidak" pada flowchart
@@ -153,12 +216,14 @@ def edit_kendaraan(data_dict, nama_file):
     print(f"Data kendaraan {plat} berhasil diperbarui.")
 
 
-def kembalikan_kendaraan(data_dict):
+def kembalikan_kendaraan(data_dict, nama_file, transaksi_file):
     plat = input("Masukkan plat kendaraan: ")
 
     if plat in data_dict:
         if data_dict[plat]["status"].lower() == "disewa":
             data_dict[plat]["status"] = "tersedia"
+            simpan_data(data_dict, nama_file)
+            update_transaksi_dikembalikan(transaksi_file, plat)
             print("Kendaraan berhasil dikembalikan!")
         else:
             print("Kendaraan tidak sedang disewa.")
@@ -170,26 +235,89 @@ def kembalikan_kendaraan(data_dict):
 
 def laporan_tersedia(data_dict):
     print("\n=== Kendaraan Tersedia ===")
+    ditemukan = False
     for plat, k in data_dict.items():
-        if k["status"] == "tersedia":
+        if k["status"].lower() == "tersedia":
+            ditemukan = True
             print(plat, "-", k["nama"])
+    if not ditemukan:
+        print("Tidak ada kendaraan yang tersedia.")
 
 
 def laporan_disewa(data_dict):
     print("\n=== Kendaraan Disewa ===")
+    ditemukan = False
     for plat, k in data_dict.items():
-        if k["status"] == "disewa":
+        if k["status"].lower() == "disewa":
+            ditemukan = True
             print(plat, "-", k["nama"])
+    if not ditemukan:
+        print("Tidak ada kendaraan yang sedang disewa.")
 
 
-def laporan_keuangan(data_dict):
+def laporan_keuangan(transaksi_file):
     total = 0
-    for k in data_dict.values():
-        if k["status"] == "disewa":
-            total += k["harga"]
+    transaksi = baca_transaksi(transaksi_file)
+
+    for t in transaksi:
+        total += t["total"]
 
     print("\n=== Laporan Keuangan ===")
     print("Total Pendapatan: Rp", total)
+
+
+def laporan_riwayat_transaksi(transaksi_file):
+    transaksi = baca_transaksi(transaksi_file)
+
+    print("\n=== Riwayat Transaksi ===")
+    if not transaksi:
+        print("Belum ada riwayat transaksi.")
+        return
+
+    for t in transaksi:
+        print(f"{t['tanggal']} - {t['plat']} - {t['kendaraan']} - {t['penyewa']} - {t['hari']} hari - Rp{t['total']} - {t['status']}")
+
+
+def laporan_transaksi_aktif(transaksi_file):
+    transaksi = baca_transaksi(transaksi_file)
+    ditemukan = False
+
+    print("\n=== Riwayat Kendaraan Sedang Disewa ===")
+    for t in transaksi:
+        if t["status"].lower() == "disewa":
+            ditemukan = True
+            print(f"{t['tanggal']} - {t['plat']} - {t['kendaraan']} - {t['penyewa']} - {t['hari']} hari - Rp{t['total']}")
+
+    if not ditemukan:
+        print("Tidak ada transaksi sewa yang masih aktif.")
+
+
+def menu_laporan(data_dict, transaksi_file):
+    while True:
+        print("\n=== MENU LAPORAN ===")
+        print("1. Kendaraan Tersedia")
+        print("2. Kendaraan Disewa Saat Ini")
+        print("3. Laporan Keuangan")
+        print("4. Riwayat Transaksi")
+        print("5. Riwayat Sewa Aktif")
+        print("0. Kembali")
+
+        pilih = input("Pilih: ")
+
+        if pilih == "1":
+            laporan_tersedia(data_dict)
+        elif pilih == "2":
+            laporan_disewa(data_dict)
+        elif pilih == "3":
+            laporan_keuangan(transaksi_file)
+        elif pilih == "4":
+            laporan_riwayat_transaksi(transaksi_file)
+        elif pilih == "5":
+            laporan_transaksi_aktif(transaksi_file)
+        elif pilih == "0":
+            break
+        else:
+            print("Pilihan tidak valid!")
 
 
 # --- MENU SEMENTARAAAA ---
@@ -201,6 +329,8 @@ while True:
     print("2. Ubah Data Kendaraan")
     print("3. Cek Ketersediaan")
     print("4. Sewa Kendaraan")
+    print("5. Kembalikan Kendaraan")
+    print("6. Laporan")
     print("0. Keluar")
     pilihan = input("Pilih Menu: ")
 
@@ -211,7 +341,11 @@ while True:
     elif pilihan == "3":
         cek_ketersediaan(data_kendaraan)
     elif pilihan == "4":
-        sewa_kendaraan(data_kendaraan)
+        sewa_kendaraan(data_kendaraan, DATA_FILE, TRANSAKSI_FILE)
+    elif pilihan == "5":
+        kembalikan_kendaraan(data_kendaraan, DATA_FILE, TRANSAKSI_FILE)
+    elif pilihan == "6":
+        menu_laporan(data_kendaraan, TRANSAKSI_FILE)
     elif pilihan == "0":
         break
     else:
