@@ -1,9 +1,26 @@
 from datetime import datetime
 from pathlib import Path
+import re
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data_kendaraan.txt"
 TRANSAKSI_FILE = BASE_DIR / "data_transaksi.txt"
+
+
+def format_plat(plat):
+    return " ".join(plat.strip().upper().split())
+
+
+def plat_valid(plat):
+    return re.fullmatch(r"[A-Z]{1,2}\s?\d{1,4}\s?[A-Z]{0,3}", plat) is not None
+
+
+def format_jenis(jenis):
+    return jenis.strip().lower()
+
+
+def jenis_valid(jenis):
+    return jenis in ("motor", "mobil")
 
 # Baca file bagian Lima
 def baca_data(nama_file):
@@ -101,7 +118,7 @@ def update_transaksi_dikembalikan(nama_file, plat):
 
 def sewa_kendaraan(data, nama_file, transaksi_file):
     print("\n=== Sewa Kendaraan ===")
-    plat_input = input("Input ID Kendaraan (Plat): ")
+    plat_input = format_plat(input("Input ID Kendaraan (Plat): "))
     
     if plat_input in data:
         # Logika Flowchart: Status Tersedia?
@@ -132,12 +149,20 @@ def sewa_kendaraan(data, nama_file, transaksi_file):
 # ================== KEMBALIKAN (Nazla)==================
 def tambah_kendaraan(data_dict, nama_file):
     print("\n=== Tambah Kendaraan ===")
-    plat = input("Plat Kendaraan: ")
+    plat = format_plat(input("Plat Kendaraan: "))
+    if not plat_valid(plat):
+        print("Plat tidak valid. Contoh format: B 1234 ABC atau F 5678 XY.")
+        return
+
     if plat in data_dict:
         print(f"Plat {plat} sudah terdaftar.")
         return
 
-    jenis = input("Jenis Kendaraan: ")
+    jenis = format_jenis(input("Jenis Kendaraan (motor/mobil): "))
+    if not jenis_valid(jenis):
+        print("Jenis kendaraan tidak valid. Isi hanya dengan motor atau mobil.")
+        return
+
     nama = input("Nama Kendaraan: ")
     warna = input("Warna Kendaraan: ")
     harga_input = input("Harga Sewa per hari: ")
@@ -170,7 +195,7 @@ def simpan_data(data_dict, nama_file):
 #BAGIAN YUMIKO
 def edit_kendaraan(data_dict, nama_file):
     print("\n=== Ubah Data Kendaraan ===")
-    plat = input("Plat Kendaraan yang akan diubah: ")
+    plat = format_plat(input("Plat Kendaraan yang akan diubah: "))
     if plat not in data_dict:
         print("Plat tidak ditemukan.")
         return
@@ -186,7 +211,11 @@ def edit_kendaraan(data_dict, nama_file):
     pilihan = input("Pilihan: ")
 
     if pilihan == "1":
-        baru = input(f"Jenis baru [{info['jenis']}]: ") or info['jenis']
+        jenis_input = input(f"Jenis baru [{info['jenis']}]: ")
+        baru = format_jenis(jenis_input) if jenis_input.strip() else info['jenis']
+        if not jenis_valid(baru):
+            print("Jenis kendaraan tidak valid. Isi hanya dengan motor atau mobil.")
+            return
         data_dict[plat]['jenis'] = baru
     elif pilihan == "2":
         baru = input(f"Nama baru [{info['nama']}]: ") or info['nama']
@@ -217,7 +246,7 @@ def edit_kendaraan(data_dict, nama_file):
 
 
 def kembalikan_kendaraan(data_dict, nama_file, transaksi_file):
-    plat = input("Masukkan plat kendaraan: ")
+    plat = format_plat(input("Masukkan plat kendaraan: "))
 
     if plat in data_dict:
         if data_dict[plat]["status"].lower() == "disewa":
