@@ -7,10 +7,12 @@ DATA_FILE = BASE_DIR / "data_kendaraan.txt"
 TRANSAKSI_FILE = BASE_DIR / "data_transaksi.txt"
 
 
+# Bagian Lima
+
 def format_plat(plat):
     return " ".join(plat.strip().upper().split())
 
-
+#Validasi format plat (HIGHLIGHT 3)
 def plat_valid(plat):
     return re.fullmatch(r"[A-Z]{1,2}\s?\d{1,4}\s?[A-Z]{0,3}", plat) is not None
 
@@ -22,7 +24,7 @@ def format_jenis(jenis):
 def jenis_valid(jenis):
     return jenis in ("motor", "mobil")
 
-# Baca file bagian Lima
+#HIGHLIGHT 1 (Struktur Data Utama (Fungsi baca_data))
 def baca_data(nama_file):
     data_dict = {}
     try:
@@ -45,16 +47,17 @@ def baca_data(nama_file):
         print("File tidak ditemukan!")
     return data_dict
 
-# --- CEK KETERSEDIAAN (PART LIMAAA)---
+# --- HIGHLIGHT 2: Algoritma Searching, MAIN CHALLENGE---
 def cek_ketersediaan(data):
     print("\n=== Cek Ketersediaan ===")
     search = input("Input ID (Plat) atau Nama Kendaraan: ").lower()
     found = False
     
     for plat, info in data.items():
+            # ALGORITMA SEARCHING (Linear & Partial Match)
         if search == plat.lower() or search in info['nama'].lower():
             found = True
-            # YES OR NAUUU
+            # LOGIKA COCOK / PENGONDISIAN
             if info['status'].lower() == "tersedia":
                 print(f"[YA] {info['nama']} ({plat}) berstatus TERSEDIA.")
             else:
@@ -63,7 +66,7 @@ def cek_ketersediaan(data):
     if not found:
         print("Data kendaraan tidak ditemukan.")
 
-# --- SEWA KENDARAAN (PART LIMAAA)---
+# --- SEWA KENDARAAN (PART Lima)---
 def baca_transaksi(nama_file):
     transaksi = []
     try:
